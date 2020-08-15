@@ -1,5 +1,6 @@
 from PIL import Image
 from PIL import ImageDraw
+from PIL import ImageFont
 import datetime
 
 class myCalendar:
@@ -11,26 +12,43 @@ class myCalendar:
     def save_img(self, fn):
         self.img.save(fn)
 
-    def vertical_line(self, start_pos, length, fill, width=0):
+    def vertical_line(self, start_pos, length, fill=(220,220,220), width=0):
         self.draw.line((start_pos, (start_pos[0], start_pos[1]+length)), fill, width)
 
-    def horizontal_line(self, start_pos, length, fill, width=0):
+    def horizontal_line(self, start_pos, length, fill=(220,220,220), width=0):
         self.draw.line((start_pos, (start_pos[0]+length, start_pos[1])), fill, width)
+
+    def text(self, pos, text, font, color=(220,220,220)):
+        self.draw.text(pos, text, color, font)
 
     def grid(self):
         color = (220,220,220) #gray
         self.start_x = self.img.size[0]/10
         self.start_y = self.img.size[1]/10
-        vert_num = 7
-        hori_num = 16
-        self.grid_w = (self.img.size[0]-self.start_x*2)/vert_num
-        self.grid_h = (self.img.size[1]-self.start_y*2)/hori_num
+        self.vert_num = 7
+        self.hori_num = 16
+        self.grid_w = (self.img.size[0]-self.start_x*2)/self.vert_num
+        self.grid_h = (self.img.size[1]-self.start_y*2)/self.hori_num
 
-        for i in range(vert_num+1):
+        for i in range(self.vert_num+1):
             self.vertical_line((self.start_x+self.grid_w*i, self.start_y), self.img.size[1]*0.8, color)
 
-        for i in range(hori_num+1):
+        for i in range(self.hori_num+1):
             self.horizontal_line((self.start_x, self.start_y+self.grid_h*i), self.img.size[0]*0.8, color)
+
+        font = ImageFont.truetype('Helvetica.ttc', 50)
+        text_pos_y = self.start_y - 50
+        text_pos_x = self.start_x + self.grid_w/3
+
+        for i,s in enumerate(['Mon','Tue','Wed','Thu','Fri','Sat','Sun']):
+            self.text((text_pos_x + self.grid_w * i,text_pos_y), s, font)
+
+        font = ImageFont.truetype('Helvetica.ttc', 30)
+        text_pos_x = self.start_x - 88
+        text_pos_y = self.start_y - 15
+
+        for i in range(self.hori_num + 1):
+            self.text((text_pos_x,text_pos_y + self.grid_h * i), '%2d:00' % (i + self.start_time), font)
 
     def rectangle(self, start_pos, length, width, fill = "#bbddff", rx=10, ry=10):
         self.draw.rectangle((start_pos, (start_pos[0]+width,start_pos[1]+length)), fill)
